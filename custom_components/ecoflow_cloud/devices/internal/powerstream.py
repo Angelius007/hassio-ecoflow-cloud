@@ -2,7 +2,7 @@ import logging
 
 from homeassistant.util import utcnow
 
-from custom_components.ecoflow_cloud.devices import  BaseDevice
+from custom_components.ecoflow_cloud.devices import BaseDevice
 from custom_components.ecoflow_cloud.entities import (
     BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 )
