@@ -21,11 +21,11 @@ class EcoflowDeviceInfo:
     name: str
     device_type: str
     client_id: str
-    data_topic: str
-    set_topic: str
-    set_reply_topic: str
-    get_topic: str | None
-    get_reply_topic: str | None
+    data_topic: str | None = None
+    set_topic: str | None = None
+    set_reply_topic: str | None = None
+    get_topic: str | None = None
+    get_reply_topic: str | None = None
     status_topic: str | None = None
     client_id: str | None = None
 
