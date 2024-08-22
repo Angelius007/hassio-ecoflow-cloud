@@ -1,11 +1,10 @@
 import base64
 import logging
-import uuid
 
 import aiohttp
+from homeassistant.util import uuid
 
 from . import EcoflowException, EcoflowApiClient
-from .ecoflow_mqtt import EcoflowMQTTClient
 from ..devices import EcoflowDeviceInfo, DiagnosticDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,9 +51,11 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             response = await self.__call_api("/iot-auth/app/certification")
             self._accept_mqqt_certification(response)
 
-    async def fetch_all_available_devices():
-        result = list()
-        return result
+            # Should be ANDROID_..str.._user_id
+            self.mqtt_info.client_id = f'ANDROID_-{str(uuid.random_uuid_hex()).upper()}_{self.user_id}'
+
+    async def fetch_all_available_devices(self):
+        return []
 
     async def quota_all(self, device_sn: str):
         self.mqtt_client.send_get_message(device_sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
@@ -64,16 +65,13 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
         from ..devices.registry import devices
         if device_type in devices:
-            self.device = devices[device_type](info)
+            device = devices[device_type](info)
         else:
-            self.device = DiagnosticDevice(info)
-        self.addOrUpdateDevice(self.device)
-        
-        if self.mqtt_client:
-            self.mqtt_client.reconnect()
-        else:
-            self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
-            self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
+            device = DiagnosticDevice(info)
+
+        self.add_device(device)
+
+        return device
 
     def __create_device_info(self, device_sn: str, device_name: str, device_type: str) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
